@@ -12,11 +12,11 @@ public class Grid<T extends Node> extends Graph<T> {
 
     @Override
     public double getDistance(Node a, Node b) {
-        return Math.sqrt(Math.abs(a.x-b.x) + Math.abs(a.y - b.y));
+        return Math.sqrt((a.x-b.x)^2 + (a.y - b.y)^2);
     }
 
     @Override
     public double getHeuristicDistance(Node a, Node b) {
-        return Math.sqrt(Math.abs(a.x-b.x) + Math.abs(a.y-b.y));
+        return Math.sqrt((a.x-b.x)^2 + (a.y-b.y)^2);
     }
 }
