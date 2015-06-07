@@ -77,7 +77,6 @@ public class JPSDiagNoObstacles<T extends Node> extends JPS<T> {
         } else {
             // return all neighbors
             neighbors.addAll(graph.getNeighborsOf(node, Graph.Diagonal.NO_OBSTACLES));
-            System.out.println("Neighbors: " + neighbors.size());
         }
 
         return neighbors;
@@ -85,10 +84,8 @@ public class JPSDiagNoObstacles<T extends Node> extends JPS<T> {
 
     @Override
     protected T jump(T neighbor, T current, T goal) {
-        if (neighbor == null) return null;
-        if (!neighbor.walkable) return null;
+        if (neighbor == null || !neighbor.walkable) return null;
         if (neighbor.equals(goal)) return neighbor;
-        System.out.println("Jumped to: " + neighbor.x + ", " + neighbor.y);
 
         int dx = neighbor.x - current.x;
         int dy = neighbor.y - current.y;
@@ -115,7 +112,7 @@ public class JPSDiagNoObstacles<T extends Node> extends JPS<T> {
             }
         }
 
-        // moving diagonally must make sure one of the vertical/horizontal neighbors is open to allow the path
+        // moving diagonally must make sure both of the vertical/horizontal neighbors is open to allow the path
         if (graph.isWalkable(neighbor.x + dx, neighbor.y) && graph.isWalkable(neighbor.x, neighbor.y + dy)) {
             return jump(graph.getNode(neighbor.x + dx, neighbor.y + dy), neighbor, goal);
         } else {

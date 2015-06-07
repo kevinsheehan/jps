@@ -8,7 +8,7 @@ import java.util.concurrent.Future;
 /**
  * @author Kevin
  */
-public class JPSDiagNoObstaclesTest {
+public class JPSDiagAlwaysTest {
     public static void main(String[] args) throws ExecutionException, InterruptedException {
         Tile[][] tiles = new Tile[][]{
                 {new Tile(0, 0), new Tile(1, 0), new Tile(2, 0), new Tile(3, 0), new Tile(4, 0), new Tile(5, 0), new Tile(6, 0), new Tile(7, 0), new Tile(8, 0)},
@@ -20,26 +20,32 @@ public class JPSDiagNoObstaclesTest {
 
         List<List<Tile>> tileList = JPSTestUtil.arraysToLists(tiles);
 
-        JPS<Tile> jps = JPS.JPSFactory.getJPS(new Grid<>(tileList), Graph.Diagonal.NO_OBSTACLES);
+        JPS<Tile> jps = JPS.JPSFactory.getJPS(new Grid<>(tileList), Graph.Diagonal.ALWAYS);
 
         if (jps == null) {
             System.out.println("JPS is null");
             return;
         }
 
-        Tile start = tileList.get(0).get(0);
+        /*Tile start = tileList.get(0).get(0);
         Tile end = tileList.get(4).get(4);
         for (int i = 0; i < 4; i++) {
             tileList.get(2).get(i).walkable = false;
         }
+        tileList.get(1).get(4).walkable = false;*/
 
-        //Tile start = tileList.get(4).get(0);
-        //Tile end = tileList.get(0).get(8);
-        /*for (int i = 1; i < 5; i++) {
+        Tile start = tileList.get(4).get(0);
+        Tile end = tileList.get(0).get(8);
+        for (int i = 1; i < 5; i++) {
             for (int j = 5; j < 9; j++) {
                 tileList.get(i).get(j).walkable = false;
             }
-        }*/
+        }
+        for (int i = 0; i < 4; i++) {
+            tileList.get(2).get(i).walkable = false;
+        }
+        tileList.get(0).get(3).walkable = false;
+        tileList.get(1).get(4).walkable = false;
 
         System.out.println("Start: " + start.x + ", " + start.y);
         System.out.println("End: " + end.x + ", " + end.y);
