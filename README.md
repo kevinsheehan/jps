@@ -9,7 +9,7 @@ There are four different rules that pathing Diagonally can follow.
 - [X] Always
 - [ ] One Obstacle
 - [X] No Obstacles
-- [ ] Never
+- [X] Never
 
 You can check out the code within the Test directory for examples on how to use this within your own projects. But in the end it more or less comes down to these three lines:
 ```java

@@ -36,7 +36,7 @@ public class JPSDiagAlways<T extends Node> extends JPS<T> {
                 if (!graph.isWalkable(x, y - dy)) 
                     neighbors.add(graph.getNode(x + dx, y - dy));
             } else { // search horizontally/vertically
-                if(dx == 0) {
+                if (dx == 0) {
                     if (graph.isWalkable(x, y + dy)) 
                         neighbors.add(graph.getNode(x, y + dy));
                     if (!graph.isWalkable(x + 1, y)) 

@@ -188,6 +188,8 @@ public abstract class JPS<T extends Node> {
                     return new JPSDiagAlways<>(graph);
                 case NO_OBSTACLES:
                     return new JPSDiagNoObstacles<>(graph);
+                case NEVER:
+                    return new JPSDiagNever<>(graph);
             }
             return null;
         }
