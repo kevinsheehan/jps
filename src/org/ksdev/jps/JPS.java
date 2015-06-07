@@ -15,7 +15,7 @@ public abstract class JPS<T extends Node> {
     }
 
     public Future<Queue<T>> findPath(T start, T goal) {
-        System.out.println("find path");
+        //System.out.println("find path");
         FutureTask<Queue<T>> future = new FutureTask<>(() -> findPathSync(start, goal));
         future.run();
         return future;
@@ -37,7 +37,7 @@ public abstract class JPS<T extends Node> {
 
         // while the open list is not empty
         while (!open.isEmpty()) {
-            System.out.println("loop");
+            //System.out.println("loop");
             // pop the position of node which has the minimum `f` value.
             T node = open.poll();
             // mark the current node as checked
@@ -63,7 +63,7 @@ public abstract class JPS<T extends Node> {
         List<T> opened = new ArrayList<>();
         // get all neighbors to the current node
         Collection<T> neighbors = findNeighbors(node);
-        System.out.println("Neighbor count: " + neighbors.size());
+        //System.out.println("Neighbor count: " + neighbors.size());
 
         double d;
         double ng;
@@ -112,11 +112,11 @@ public abstract class JPS<T extends Node> {
     private Queue<T> backtrace(T node) {
         LinkedList<T> path = new LinkedList<>();
         path.add(node);
-        System.out.println("My node is: " + node.x + ", " + node.y);
+        //System.out.println("My node is: " + node.x + ", " + node.y);
         while(node.parent != null) {
             node = (T) node.parent;
             path.addFirst(node);
-            System.out.println("My node is: " + node.x + ", " + node.y);
+            //System.out.println("My node is: " + node.x + ", " + node.y);
         }
         return path;
     }
@@ -150,7 +150,7 @@ public abstract class JPS<T extends Node> {
      * Pushes all the nodes from start to end
      */
     private Queue<T> interpolate(T start, T end) {
-        System.out.println("Interpolating from " + start.x + ", " + start.y + " to " + end.x + ", " + end.y);
+        //System.out.println("Interpolating from " + start.x + ", " + start.y + " to " + end.x + ", " + end.y);
         LinkedList<T> path = new LinkedList<>();
 
         int x = start.x;
@@ -177,7 +177,7 @@ public abstract class JPS<T extends Node> {
                 y += sy;
             }
         }
-        System.out.println("Done interpolating");
+        //System.out.println("Done interpolating");
         return path;
     }
 
@@ -186,6 +186,8 @@ public abstract class JPS<T extends Node> {
             switch (diagonal) {
                 case ALWAYS:
                     return new JPSDiagAlways<>(graph);
+                case ONE_OBSTACLE:
+                    return new JPSDiagOneObstacle<>(graph);
                 case NO_OBSTACLES:
                     return new JPSDiagNoObstacles<>(graph);
                 case NEVER:

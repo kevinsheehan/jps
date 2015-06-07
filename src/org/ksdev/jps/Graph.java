@@ -25,7 +25,6 @@ public abstract class Graph<T extends Node> {
         nodes = new ArrayList<>(map.size() * map.get(0).size());
 
         map.forEach(nodes::addAll);
-        System.out.println("nodes length " + nodes.size());
     }
 
     /**
@@ -79,8 +78,6 @@ public abstract class Graph<T extends Node> {
         List<T> neighbors = new ArrayList<>();
 
         boolean n = false, s = false, e = false, w = false, ne = false, nw = false, se = false, sw = false;
-
-        System.out.println("Graph checking neighbors");
 
         // ?
         if (isWalkable(x, y - 1)) {
