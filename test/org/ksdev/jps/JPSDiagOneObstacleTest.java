@@ -1,6 +1,8 @@
 package org.ksdev.jps;
 
-import java.util.List;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -8,32 +10,36 @@ import java.util.concurrent.Future;
 /**
  * @author Kevin
  */
-public class JPSDiagOneObstacleTest {
-    public static void main(String[] args) throws ExecutionException, InterruptedException {
-        Tile[][] tiles = new Tile[][]{
-                {new Tile(0, 0), new Tile(1, 0), new Tile(2, 0), new Tile(3, 0), new Tile(4, 0), new Tile(5, 0), new Tile(6, 0), new Tile(7, 0), new Tile(8, 0)},
-                {new Tile(0, 1), new Tile(1, 1), new Tile(2, 1), new Tile(3, 1), new Tile(4, 1), new Tile(5, 1), new Tile(6, 1), new Tile(7, 1), new Tile(8, 1)},
-                {new Tile(0, 2), new Tile(1, 2), new Tile(2, 2), new Tile(3, 2), new Tile(4, 2), new Tile(5, 2), new Tile(6, 2), new Tile(7, 2), new Tile(8, 2)},
-                {new Tile(0, 3), new Tile(1, 3), new Tile(2, 3), new Tile(3, 3), new Tile(4, 3), new Tile(5, 3), new Tile(6, 3), new Tile(7, 3), new Tile(8, 3)},
-                {new Tile(0, 4), new Tile(1, 4), new Tile(2, 4), new Tile(3, 4), new Tile(4, 4), new Tile(5, 4), new Tile(6, 4), new Tile(7, 4), new Tile(8, 4)}
-        };
+public class JPSDiagOneObstacleTest extends JPSDiagBaseTest {
+    @Before
+    public void setup() { setup(Graph.Diagonal.ONE_OBSTACLE); }
 
-        List<List<Tile>> tileList = JPSTestUtil.arraysToLists(tiles);
-
-        JPS<Tile> jps = JPS.JPSFactory.getJPS(new Grid<>(tileList), Graph.Diagonal.ONE_OBSTACLE);
-
-        if (jps == null) {
-            System.out.println("JPS is null");
-            return;
-        }
-
-        /*Tile start = tileList.get(0).get(0);
+    @Test
+    public void goAroundWall() throws ExecutionException, InterruptedException {
+        Tile start = tileList.get(0).get(0);
         Tile end = tileList.get(4).get(4);
         for (int i = 0; i < 4; i++) {
             tileList.get(2).get(i).walkable = false;
         }
-        tileList.get(1).get(4).walkable = false;*/
+        tileList.get(1).get(4).walkable = false;
 
+        Future<Queue<Tile>> futurePath = jps.findPath(start, end);
+        Queue<Tile> path = futurePath.get();
+
+        assert path.remove().equals(tileList.get(0).get(0));
+        assert path.remove().equals(tileList.get(0).get(1));
+        assert path.remove().equals(tileList.get(0).get(2));
+        assert path.remove().equals(tileList.get(0).get(3));
+        assert path.remove().equals(tileList.get(0).get(4));
+        assert path.remove().equals(tileList.get(1).get(5));
+        assert path.remove().equals(tileList.get(2).get(4));
+        assert path.remove().equals(tileList.get(3).get(4));
+        assert path.remove().equals(tileList.get(4).get(4));
+    }
+
+    @Test
+    public void diagonalTwoObstacles() throws ExecutionException, InterruptedException {
+        // This test will fail (which is good)
         Tile start = tileList.get(4).get(0);
         Tile end = tileList.get(0).get(8);
         for (int i = 1; i < 5; i++) {
@@ -41,28 +47,45 @@ public class JPSDiagOneObstacleTest {
                 tileList.get(i).get(j).walkable = false;
             }
         }
-        /*for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; i++) {
             tileList.get(2).get(i).walkable = false;
-        }*/
-        //tileList.get(0).get(3).walkable = false;
+        }
+        tileList.get(0).get(3).walkable = false;
         tileList.get(1).get(4).walkable = false;
 
-        System.out.println("Start: " + start.x + ", " + start.y);
-        System.out.println("End: " + end.x + ", " + end.y);
-
-
-
         Future<Queue<Tile>> futurePath = jps.findPath(start, end);
-
         Queue<Tile> path = futurePath.get();
 
-        if (path == null || path.isEmpty()) {
-            System.out.printf("No path found");
-            return;
+        assert path == null;
+    }
+
+    @Test
+    public void noObstacles() throws ExecutionException, InterruptedException {
+        Tile start = tileList.get(4).get(0);
+        Tile end = tileList.get(0).get(4);
+
+        Future<Queue<Tile>> futurePath = jps.findPath(start, end);
+        Queue<Tile> path = futurePath.get();
+
+        assert path.remove().equals(tileList.get(4).get(0));
+        assert path.remove().equals(tileList.get(3).get(1));
+        assert path.remove().equals(tileList.get(2).get(2));
+        assert path.remove().equals(tileList.get(1).get(3));
+        assert path.remove().equals(tileList.get(0).get(4));
+    }
+
+    @Test
+    public void noPath() throws ExecutionException, InterruptedException {
+        Tile start = tileList.get(0).get(0);
+        Tile end = tileList.get(4).get(8);
+
+        for (Tile tile : tileList.get(2)) {
+            tile.walkable = false;
         }
 
-        for (Tile tile : path) {
-            System.out.println(String.format("X: %s, Y: %s", tile.x, tile.y));
-        }
+        Future<Queue<Tile>> futurePath = jps.findPath(start, end);
+        Queue<Tile> path = futurePath.get();
+
+        assert path == null;
     }
 }
