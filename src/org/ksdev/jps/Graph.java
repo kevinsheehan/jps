@@ -1,14 +1,13 @@
 package org.ksdev.jps;
 
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.function.BiFunction;
 
 /**
  * @author Kevin
  */
-public abstract class Graph<T extends Node> {
+public class Graph<T extends Node> {
     public enum Diagonal {
         ALWAYS,
         NO_OBSTACLES,
@@ -19,12 +18,57 @@ public abstract class Graph<T extends Node> {
     private List<T> nodes;
     private int width;
 
+    private BiFunction<Node, Node, Double> distance = euclidean;
+    private BiFunction<Node, Node, Double> heuristic = euclidean;
+
+    public Graph(List<List<T>> map, DistanceAlgo distance, DistanceAlgo heuristic) {
+        if (map == null || map.get(0) == null) return;
+        width = map.get(0).size();
+        nodes = new ArrayList<>(map.size() * map.get(0).size());
+
+        map.forEach(nodes::addAll);
+
+        this.distance = distance.algo;
+        this.heuristic = heuristic.algo;
+    }
+
+    public Graph(T[][] map, DistanceAlgo distance, DistanceAlgo heuristic) {
+        if (map == null || map[0] == null) return;
+        width = map.length;
+        nodes = new ArrayList<>(map.length * map[0].length);
+
+        for (T[] row : map) {
+            Collections.addAll(nodes, row);
+        }
+
+        this.distance = distance.algo;
+        this.heuristic = heuristic.algo;
+    }
+
+    /**
+     * By default, will use EUCLIDEAN for distance and heuristic calculations. You can set your own algorithm
+     * if you would like to change this.
+     */
     public Graph(List<List<T>> map) {
         if (map == null || map.get(0) == null) return;
         width = map.get(0).size();
         nodes = new ArrayList<>(map.size() * map.get(0).size());
 
         map.forEach(nodes::addAll);
+    }
+
+    /**
+     * By default, will use EUCLIDEAN for distance and heuristic calculations. You can set your own algorithm
+     * if you would like to change this.
+     */
+    public Graph(T[][] map) {
+        if (map == null || map[0] == null) return;
+        width = map.length;
+        nodes = new ArrayList<>(map.length * map[0].length);
+
+        for (T[] row : map) {
+            Collections.addAll(nodes, row);
+        }
     }
 
     /**
@@ -43,14 +87,14 @@ public abstract class Graph<T extends Node> {
      * Given two adjacent nodes, returns the distance between them.
      * @return The distance between the two nodes given.
      */
-    public abstract double getDistance(Node a, Node b);
+    public double getDistance(Node a, Node b) { return distance.apply(a, b); }
 
     /**
      * Given two nodes, returns the estimated distance between them. Optimizing this is the best way to improve
      * performance of your search time.
      * @return Estimated distance between the two given nodes.
      */
-    public abstract double getHeuristicDistance(Node a, Node b);
+    public double getHeuristicDistance(Node a, Node b) { return heuristic.apply(a, b); };
 
     /**
      * By default, we return all reachable diagonal neighbors that have no obstacles blocking us.
@@ -142,4 +186,40 @@ public abstract class Graph<T extends Node> {
     public boolean isWalkable(int x, int y) {
         return x >= 0 && x < width && y >= 0 && y < nodes.size() / width && getNode(x, y).walkable;
     }
+
+    /**
+     * If you would like to define your own Distance Algorithm not included.
+     */
+    public void setDistanceAlgo(BiFunction<Node, Node, Double> distance) {
+        this.distance = distance;
+    }
+
+    /**
+     * If you would like to define your own Heuristic Algorithm not included.
+     */
+    public void setHeuristicAlgo(BiFunction<Node, Node, Double> heuristic) {
+        this.heuristic = heuristic;
+    }
+
+    public enum DistanceAlgo {
+        MANHATTAN(manhattan),
+        EUCLIDEAN(euclidean),
+        OCTILE(octile),
+        CHEBYSHEV(chebyshev);
+
+        BiFunction<Node, Node, Double> algo;
+
+        DistanceAlgo(BiFunction<Node, Node, Double> algo) {
+            this.algo = algo;
+        }
+    }
+    private static BiFunction<Node, Node, Double> manhattan = (a, b) -> (double) (a.x - b.x) + (a.y - b.y);
+    private static BiFunction<Node, Node, Double> euclidean = (a, b) -> Math.sqrt((a.x - b.x)^2 + (a.y - b.y)^2);
+    private static BiFunction<Node, Node, Double> octile = (a, b) -> {
+        double F = Math.sqrt(2) - 1;
+        double dx = (a.x - b.x);
+        double dy = (a.y - b.y);
+        return (dx < dy) ? F * dx + dy : F * dy + dx;
+    };
+    private static BiFunction<Node, Node, Double> chebyshev = (a, b) -> (double) Math.max(a.x - b.x, a.y - b.y);
 }

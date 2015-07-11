@@ -15,5 +15,16 @@ public abstract class Node {
     boolean opened = false;
     boolean closed = false;
 
-    public boolean walkable = true;
+    boolean walkable = true;
+
+    public Node(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public int getX() { return x; }
+    public int getY() { return y; }
+
+    public void setWalkable(boolean walkable) { this.walkable = walkable; }
+    public boolean isWalkable() { return walkable; }
 }
