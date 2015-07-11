@@ -22,7 +22,6 @@ public class Graph<T extends Node> {
     private BiFunction<Node, Node, Double> heuristic = euclidean;
 
     public Graph(List<List<T>> map, DistanceAlgo distance, DistanceAlgo heuristic) {
-        if (map == null || map.get(0) == null) return;
         width = map.get(0).size();
         nodes = new ArrayList<>(map.size() * map.get(0).size());
 
@@ -33,7 +32,6 @@ public class Graph<T extends Node> {
     }
 
     public Graph(T[][] map, DistanceAlgo distance, DistanceAlgo heuristic) {
-        if (map == null || map[0] == null) return;
         width = map.length;
         nodes = new ArrayList<>(map.length * map[0].length);
 
@@ -50,7 +48,6 @@ public class Graph<T extends Node> {
      * if you would like to change this.
      */
     public Graph(List<List<T>> map) {
-        if (map == null || map.get(0) == null) return;
         width = map.get(0).size();
         nodes = new ArrayList<>(map.size() * map.get(0).size());
 
@@ -62,7 +59,6 @@ public class Graph<T extends Node> {
      * if you would like to change this.
      */
     public Graph(T[][] map) {
-        if (map == null || map[0] == null) return;
         width = map.length;
         nodes = new ArrayList<>(map.length * map[0].length);
 
@@ -94,7 +90,7 @@ public class Graph<T extends Node> {
      * performance of your search time.
      * @return Estimated distance between the two given nodes.
      */
-    public double getHeuristicDistance(Node a, Node b) { return heuristic.apply(a, b); };
+    public double getHeuristicDistance(Node a, Node b) { return heuristic.apply(a, b); }
 
     /**
      * By default, we return all reachable diagonal neighbors that have no obstacles blocking us.
@@ -103,7 +99,7 @@ public class Graph<T extends Node> {
      * O C X
      * O O O
      *
-     * In this above example, we could not go diagonally from our (C)urrent position to our (G)oal do to the obstacle (X).
+     * In this above example, we could not go diagonally from our (C)urrent position to our (G)oal due to the obstacle (X).
      *
      * Please use {@link #getNeighborsOf(Node, Diagonal)} method if you would like to specify different diagonal functionality.
      *

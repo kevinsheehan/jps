@@ -22,7 +22,7 @@ public class JPSDiagBaseTest {
 
         tileList = JPSTestUtil.arraysToLists(tiles);
 
-        jps = JPS.JPSFactory.getJPS(new Grid<>(tileList), diagonal);
+        jps = JPS.JPSFactory.getJPS(new Graph<>(tileList), diagonal);
     }
 
     @After
