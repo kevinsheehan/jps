@@ -13,9 +13,23 @@ There are four different rules that pathing Diagonally can follow.
 
 You can check out the code within the Test directory for examples on how to use this within your own projects. But in the end it more or less comes down to these three lines:
 ```java
-        JPS<Tile> jps = JPS.JPSFactory.getJPS(new Grid<>(tileList), Graph.Diagonal.NO_OBSTACLES);
+        JPS<Tile> jps = JPS.JPSFactory.getJPS(new Graph<>(tileList), Graph.Diagonal.NO_OBSTACLES);
         Future<Queue<Tile>> futurePath = jps.findPath(start, end);
         Queue<Tile> path = futurePath.get();
+```
+
+The code comes with four different distance algorithms already included but you are free to set your own as well.
+The four you can choose from are: Manhattan, Euclidean, Octile, and Chebyshev.
+```java
+        // Tile Map, Distance Calculation, Heuristic Calculation
+        Graph<>(tiles, Graph.DistanceAlgo.MANHATTAN, Graph.DistanceAlgo.EUCLIDEAN);          
+```
+
+If you would like to set your own:
+```java
+        BiFunction<Node, Node, Double> minDistance = (a, b) -> (double) Math.min(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
+        graph.setDistanceAlgo(minDistance);
+        graph.setHeuristicAlgo(minDistance);
 ```
 
 ## License
