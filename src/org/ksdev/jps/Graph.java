@@ -209,13 +209,13 @@ public class Graph<T extends Node> {
             this.algo = algo;
         }
     }
-    private static BiFunction<Node, Node, Double> manhattan = (a, b) -> (double) (a.x - b.x) + (a.y - b.y);
+    private static BiFunction<Node, Node, Double> manhattan = (a, b) -> (double) Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
     private static BiFunction<Node, Node, Double> euclidean = (a, b) -> Math.sqrt((a.x - b.x)^2 + (a.y - b.y)^2);
     private static BiFunction<Node, Node, Double> octile = (a, b) -> {
         double F = Math.sqrt(2) - 1;
-        double dx = (a.x - b.x);
-        double dy = (a.y - b.y);
+        double dx = Math.abs(a.x - b.x);
+        double dy = Math.abs(a.y - b.y);
         return (dx < dy) ? F * dx + dy : F * dy + dx;
     };
-    private static BiFunction<Node, Node, Double> chebyshev = (a, b) -> (double) Math.max(a.x - b.x, a.y - b.y);
+    private static BiFunction<Node, Node, Double> chebyshev = (a, b) -> (double) Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
 }
