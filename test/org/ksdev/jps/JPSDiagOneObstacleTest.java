@@ -88,4 +88,37 @@ public class JPSDiagOneObstacleTest extends JPSDiagBaseTest {
 
         assert path == null;
     }
+
+    @Test
+    public void map2() throws ExecutionException, InterruptedException {
+        Tile start = tileList2.get(38).get(34);
+        System.out.println(start.isWalkable());
+        Tile end = tileList2.get(36).get(30);
+        System.out.println(end.isWalkable());
+
+        Future<Queue<Tile>> futurePath = jps2.findPath(start, end);
+        Queue<Tile> path = futurePath.get();
+
+        assert path != null;
+
+        for (Tile tile : path) {
+            System.out.println("X: " + tile.x + ", Y: " + tile.y);
+        }
+
+        System.out.println("Ugh.");
+
+        start = tileList2.get(36).get(30);
+        System.out.println(start.isWalkable());
+        end = tileList2.get(35).get(30);
+        System.out.println(end.isWalkable());
+
+        futurePath = jps2.findPath(start, end);
+        path = futurePath.get();
+
+        assert path != null;
+
+        for (Tile tile : path) {
+            System.out.println("X: " + tile.x + ", Y: " + tile.y);
+        }
+    }
 }

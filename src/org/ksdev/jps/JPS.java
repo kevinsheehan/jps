@@ -25,27 +25,30 @@ public abstract class JPS<T extends Node> {
             // we want the nodes with the lowest projected F value to be checked first
             return Double.compare(a.f, b.f);
         });
+        Set<T> closed = new HashSet<>();
+        Map<T, T> parentMap = new HashMap<>();
 
-        // set the `g` and `f` value of the start node to be 0
-        start.g = 0;
-        start.f = 0;
+        if (!goal.isWalkable()) {
+            return null;
+        }
 
+        System.out.println("Start: " + start.x + "," + start.y);
         // push the start node into the open list
         open.add(start);
-        start.opened = true;
 
         // while the open list is not empty
         while (!open.isEmpty()) {
+            //System.out.println(open.size());
             // pop the position of node which has the minimum `f` value.
             T node = open.poll();
             // mark the current node as checked
-            node.closed = true;
+            closed.add(node);
 
             if (node.equals(goal)) {
-                return expandPath(backtrace(goal));
+                return backtrace(goal, parentMap);
             }
             // add all possible next steps from the current node
-            open.addAll(identifySuccessors(node, goal));
+            identifySuccessors(node, goal, open, closed, parentMap);
         }
 
         // failed to find a path
@@ -57,10 +60,9 @@ public abstract class JPS<T extends Node> {
      * nodes found to the open list.
      * @return All the nodes we have found jumpable from the current node
      */
-    public List<T> identifySuccessors(T node, T goal) {
-        List<T> opened = new ArrayList<>();
+    private void identifySuccessors(T node, T goal, Queue<T> open, Set<T> closed, Map<T, T> parentMap) {
         // get all neighbors to the current node
-        Collection<T> neighbors = findNeighbors(node);
+        Collection<T> neighbors = findNeighbors(node, parentMap);
 
         double d;
         double ng;
@@ -69,7 +71,7 @@ public abstract class JPS<T extends Node> {
             T jumpNode = jump(neighbor, node, goal);
 
             // don't add a node we have already gotten to quicker
-            if (jumpNode == null || jumpNode.closed) continue;
+            if (jumpNode == null || closed.contains(jumpNode)) continue;
 
             // determine the jumpNode's distance from the start along the current path
             d = graph.getDistance(jumpNode, node);
@@ -77,26 +79,24 @@ public abstract class JPS<T extends Node> {
 
             // if the node has already been opened and this is a shorter path, update it
             // if it hasn't been opened, mark as open and update it
-            if (!jumpNode.opened || ng < jumpNode.g) {
+            if (!open.contains(jumpNode) || ng < jumpNode.g) {
                 jumpNode.g = ng;
                 jumpNode.h = graph.getHeuristicDistance(jumpNode, goal);
                 jumpNode.f = jumpNode.g + jumpNode.h;
-                jumpNode.parent = node;
+                parentMap.put(jumpNode, node);
 
-                if (!jumpNode.opened) {
-                    jumpNode.opened = true;
-                    opened.add(jumpNode);
+                if (!open.contains(jumpNode)) {
+                    open.offer(jumpNode);
                 }
             }
         }
-        return opened;
     }
 
     /**
      * Find all neighbors for a given node. If node has a parent then prune neighbors based on JPS algorithm,
      * otherwise return all neighbors.
      */
-    protected abstract Collection<T> findNeighbors(T node);
+    protected abstract Collection<T> findNeighbors(T node, Map<T, T> parentMap);
 
     /**
      * Search towards the child from the parent, returning when a jump point is found.
@@ -106,70 +106,30 @@ public abstract class JPS<T extends Node> {
     /**
      * Returns a path of the parent nodes from a given node.
      */
-    private Queue<T> backtrace(T node) {
+    private Queue<T> backtrace(T node, Map<T, T> parentMap) {
         LinkedList<T> path = new LinkedList<>();
         path.add(node);
-        while(node.parent != null) {
-            node = (T) node.parent;
-            path.addFirst(node);
-        }
-        return path;
-    }
 
-    /**
-     * Takes an abbreviated path and expands to a full path of connected nodes that link all the nodes
-     * in the given path.
-     */
-    private Queue<T> expandPath(Queue<T> shortenedPath) {
-        if (shortenedPath.size() < 2) return shortenedPath;
-        LinkedList<T> path = new LinkedList<>();
+        int previousX, previousY, currentX, currentY;
+        int dx, dy;
+        int steps;
+        T temp;
+        while (parentMap.containsKey(node)) {
+            previousX = parentMap.get(node).x;
+            previousY = parentMap.get(node).y;
+            currentX = node.x;
+            currentY = node.y;
+            steps = Integer.max(Math.abs(previousX - currentX), Math.abs(previousY - currentY));
+            dx = Integer.compare(previousX, currentX);
+            dy = Integer.compare(previousY, currentY);
 
-        T cur, next;
-
-        cur = shortenedPath.poll();
-        int size = shortenedPath.size();
-        for (int i = 0; i < size; i++) {
-            next = shortenedPath.poll();
-
-            Queue<T> interpolated = interpolate(cur, next);
-            path.addAll(interpolated);
-
-            cur = next;
-        }
-        path.add(cur);
-
-        return path;
-    }
-
-    /**
-     * Pushes all the nodes from start to end
-     */
-    private Queue<T> interpolate(T start, T end) {
-        LinkedList<T> path = new LinkedList<>();
-
-        int x = start.x;
-        int y = start.y;
-        int dx = Math.abs(end.x - start.x);
-        int dy = Math.abs(end.y - start.y);
-        int sx = start.x < end.x ? 1 : -1;
-        int sy = start.y < end.y ? 1 : -1;
-
-        int err = dx - dy;
-        int e2;
-        while(true) {
-            if (x == end.x && y == end.y) break;
-
-            path.add(graph.getNode(x, y));
-
-            e2 = 2 * err;
-            if (e2 > -dy) {
-                err = err - dy;
-                x += sx;
+            temp = node;
+            for (int i = 0; i < steps; i++) {
+                temp = graph.getNode(temp.x + dx, temp.y + dy);
+                path.addFirst(temp);
             }
-            if (e2 < dx) {
-                err = err + dx;
-                y += sy;
-            }
+
+            node = parentMap.get(node);
         }
         return path;
     }

@@ -32,7 +32,7 @@ public class Graph<T extends Node> {
     }
 
     public Graph(T[][] map, DistanceAlgo distance, DistanceAlgo heuristic) {
-        width = map.length;
+        width = map[0].length;
         nodes = new ArrayList<>(map.length * map[0].length);
 
         for (T[] row : map) {
@@ -59,7 +59,7 @@ public class Graph<T extends Node> {
      * if you would like to change this.
      */
     public Graph(T[][] map) {
-        width = map.length;
+        width = map[0].length;
         nodes = new ArrayList<>(map.length * map[0].length);
 
         for (T[] row : map) {

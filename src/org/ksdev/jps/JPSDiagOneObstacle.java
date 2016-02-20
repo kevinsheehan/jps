@@ -3,6 +3,7 @@ package org.ksdev.jps;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Kevin
@@ -11,10 +12,10 @@ public class JPSDiagOneObstacle<T extends Node> extends JPS<T> {
     public JPSDiagOneObstacle(Graph<T> graph) { super(graph); }
 
     @Override
-    protected Collection<T> findNeighbors(T node) {
+    protected Collection<T> findNeighbors(T node, Map<T, T> parentMap) {
         List<T> neighbors = new ArrayList<>();
 
-        Node parent = node.parent;
+        Node parent = parentMap.get(node);
         if (parent != null) {
             final int x = node.x;
             final int y = node.y;
@@ -28,11 +29,11 @@ public class JPSDiagOneObstacle<T extends Node> extends JPS<T> {
                     neighbors.add(graph.getNode(x, y + dy));
                 if (graph.isWalkable(x + dx, y))
                     neighbors.add(graph.getNode(x + dx, y));
-                if (graph.isWalkable(x, y + dy) || graph.isWalkable(x + dx, y))
+                if ((graph.isWalkable(x, y + dy) || graph.isWalkable(x + dx, y)) && graph.isWalkable(x + dx, y + dy))
                     neighbors.add(graph.getNode(x + dx, y + dy));
-                if (!graph.isWalkable(x - dx, y) && graph.isWalkable(x, y + dy))
+                if ((!graph.isWalkable(x - dx, y) && graph.isWalkable(x, y + dy)) && graph.isWalkable(x - dx, y + dy))
                     neighbors.add(graph.getNode(x - dx, y + dy));
-                if (!graph.isWalkable(x, y - dy) && graph.isWalkable(x + dx, y))
+                if ((!graph.isWalkable(x, y - dy) && graph.isWalkable(x + dx, y)) && graph.isWalkable(x + dx, y - dy))
                     neighbors.add(graph.getNode(x + dx, y - dy));
             } else { // search horizontally/vertically
                 if (dx == 0) {

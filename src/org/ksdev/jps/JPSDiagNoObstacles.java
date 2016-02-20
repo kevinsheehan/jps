@@ -3,6 +3,7 @@ package org.ksdev.jps;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Kevin
@@ -17,10 +18,10 @@ public class JPSDiagNoObstacles<T extends Node> extends JPS<T> {
      * If no parent for the given node, return all neighbors.
      */
     @Override
-    protected Collection<T> findNeighbors(T node) {
+    protected Collection<T> findNeighbors(T node, Map<T, T> parentMap) {
         List<T> neighbors = new ArrayList<>();
 
-        Node parent = node.parent;
+        Node parent = parentMap.get(node);
         if (parent != null) {
             final int x = node.x;
             final int y = node.y;
@@ -29,7 +30,7 @@ public class JPSDiagNoObstacles<T extends Node> extends JPS<T> {
             final int dy = (y - parent.y) / Math.max(Math.abs(y - parent.y), 1);
 
             // search diagonally
-            if (dx != 0 && dy != 0) {
+            if ((dx & dy) != 0) {
                 if (graph.isWalkable(x, y + dy)) {
                     neighbors.add(graph.getNode(x, y + dy));
                 }
@@ -92,7 +93,7 @@ public class JPSDiagNoObstacles<T extends Node> extends JPS<T> {
 
         // check for forced neighbors (eliminate symmetrical paths)
         // check along diagonal
-        if (dx != 0 && dy != 0) {
+        if ((dx & dy) != 0) {
             // when moving diagonally, must check for vertical/horizontal jump points
             if (jump(graph.getNode(neighbor.x + dx, neighbor.y), neighbor, goal) != null ||
                     jump(graph.getNode(neighbor.x, neighbor.y + dy), neighbor, goal) != null) {

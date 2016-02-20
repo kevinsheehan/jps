@@ -3,6 +3,7 @@ package org.ksdev.jps;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Kevin
@@ -11,9 +12,10 @@ public class JPSDiagAlways<T extends Node> extends JPS<T> {
     public JPSDiagAlways(Graph<T> graph) { super(graph); }
 
     @Override
-    protected Collection<T> findNeighbors(T node) {
+    protected Collection<T> findNeighbors(T node, Map<T, T> parentMap) {
         List<T> neighbors = new ArrayList<>();
-        Node parent = node.parent;
+
+        Node parent = parentMap.get(node);
 
         // directed pruning: can ignore most neighbors, unless forced.
         if (parent != null) {
