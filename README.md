@@ -18,6 +18,7 @@ Future<Queue<Tile>> futurePath = jps.findPath(start, end);
 Queue<Tile> path = futurePath.get();
 ```
 
+### Distance and Heuristic
 The code comes with four different distance algorithms already included but you are free to set your own as well.
 The four you can choose from are: Manhattan, Euclidean, Octile, and Chebyshev.
 ```java
@@ -30,6 +31,17 @@ If you would like to set your own:
 BiFunction<Node, Node, Double> minDistance = (a, b) -> (double) Math.min(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
 graph.setDistanceAlgo(minDistance);
 graph.setHeuristicAlgo(minDistance);
+```
+
+### Adjacent Stop
+When finding a path you can have the goal include adjacent nodes. If you want all of the goal nodes neighbors to be considered good endpoints:
+```java
+Queue<Tile> futurePath = jps.findPathSync(start, end, true);
+```
+
+If you want to have all neighbors be goal nodes but to exclude diagonal neighbors from being acceptable endpoints:
+```java
+Queue<Tile> futurePath = jps.findPathSync(start, end, true, false);
 ```
 
 ## License
