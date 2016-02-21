@@ -37,9 +37,13 @@ public abstract class JPS<T extends Node> {
     }
 
     public Queue<T> findPathSync(T start, T goal, boolean adjacentStop, boolean diagonalStop) {
+        Map<T, Double> fMap = new HashMap<>(); // distance to start + estimate to end
+        Map<T, Double> gMap = new HashMap<>(); // distance to start (parent's g + distance from parent)
+        Map<T, Double> hMap = new HashMap<>(); // estimate to end
+
         Queue<T> open = new PriorityQueue<>((a, b) -> {
             // we want the nodes with the lowest projected F value to be checked first
-            return Double.compare(a.f, b.f);
+            return Double.compare(fMap.getOrDefault(a, 0d), fMap.getOrDefault(b, 0d));
         });
         Set<T> closed = new HashSet<>();
         Map<T, T> parentMap = new HashMap<>();
@@ -74,7 +78,7 @@ public abstract class JPS<T extends Node> {
                 return backtrace(node, parentMap);
             }
             // add all possible next steps from the current node
-            identifySuccessors(node, goal, goals, open, closed, parentMap);
+            identifySuccessors(node, goal, goals, open, closed, parentMap, fMap, gMap, hMap);
         }
 
         // failed to find a path
@@ -86,7 +90,8 @@ public abstract class JPS<T extends Node> {
      * nodes found to the open list.
      * @return All the nodes we have found jumpable from the current node
      */
-    private void identifySuccessors(T node, T goal, Set<T> goals, Queue<T> open, Set<T> closed, Map<T, T> parentMap) {
+    private void identifySuccessors(T node, T goal, Set<T> goals, Queue<T> open, Set<T> closed, Map<T, T> parentMap,
+                                    Map<T, Double> fMap, Map<T, Double> gMap, Map<T, Double> hMap) {
         // get all neighbors to the current node
         Collection<T> neighbors = findNeighbors(node, parentMap);
 
@@ -101,14 +106,15 @@ public abstract class JPS<T extends Node> {
 
             // determine the jumpNode's distance from the start along the current path
             d = graph.getDistance(jumpNode, node);
-            ng = node.g + d;
+            ng = gMap.getOrDefault(node, 0d) + d;
 
             // if the node has already been opened and this is a shorter path, update it
             // if it hasn't been opened, mark as open and update it
-            if (!open.contains(jumpNode) || ng < jumpNode.g) {
-                jumpNode.g = ng;
-                jumpNode.h = graph.getHeuristicDistance(jumpNode, goal);
-                jumpNode.f = jumpNode.g + jumpNode.h;
+            if (!open.contains(jumpNode) || ng < gMap.getOrDefault(jumpNode, 0d)) {
+                gMap.put(jumpNode, ng);
+                hMap.put(jumpNode, graph.getHeuristicDistance(jumpNode, goal));
+                fMap.put(jumpNode, gMap.getOrDefault(jumpNode, 0d) + hMap.getOrDefault(jumpNode, 0d));
+                //System.out.println("jumpNode: " + jumpNode.x + "," + jumpNode.y + " f: " + fMap.get(jumpNode));
                 parentMap.put(jumpNode, node);
 
                 if (!open.contains(jumpNode)) {

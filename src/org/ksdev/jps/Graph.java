@@ -210,7 +210,7 @@ public class Graph<T extends Node> {
         }
     }
     private static BiFunction<Node, Node, Double> manhattan = (a, b) -> (double) Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
-    private static BiFunction<Node, Node, Double> euclidean = (a, b) -> Math.sqrt((a.x - b.x)^2 + (a.y - b.y)^2);
+    private static BiFunction<Node, Node, Double> euclidean = (a, b) -> Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
     private static BiFunction<Node, Node, Double> octile = (a, b) -> {
         double F = Math.sqrt(2) - 1;
         double dx = Math.abs(a.x - b.x);
