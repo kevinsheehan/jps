@@ -1,9 +1,6 @@
 package org.ksdev.jps;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Kevin
@@ -12,8 +9,8 @@ public class JPSDiagNever<T extends Node> extends JPS<T> {
     public JPSDiagNever(Graph<T> graph) { super(graph); }
 
     @Override
-    protected Collection<T> findNeighbors(T node, Map<T, T> parentMap) {
-        List<T> neighbors = new ArrayList<>();
+    protected Set<T> findNeighbors(T node, Map<T, T> parentMap) {
+        Set<T> neighbors = new HashSet<>();
 
         Node parent = parentMap.get(node);
 
@@ -50,9 +47,9 @@ public class JPSDiagNever<T extends Node> extends JPS<T> {
     }
 
     @Override
-    protected T jump(T neighbor, T current, T goal) {
+    protected T jump(T neighbor, T current, Set<T> goals) {
         if (neighbor == null || !neighbor.walkable) return null;
-        if (neighbor.equals(goal)) return neighbor;
+        if (goals.contains(neighbor)) return neighbor;
 
         int dx = neighbor.x - current.x;
         int dy = neighbor.y - current.y;
@@ -70,14 +67,14 @@ public class JPSDiagNever<T extends Node> extends JPS<T> {
                 return neighbor;
             }
             // when moving vertically check for horizontal jump points
-            if (jump(graph.getNode(neighbor.x + 1, neighbor.y), neighbor, goal) != null ||
-                    jump(graph.getNode(neighbor.x - 1, neighbor.y), neighbor, goal) != null) {
+            if (jump(graph.getNode(neighbor.x + 1, neighbor.y), neighbor, goals) != null ||
+                    jump(graph.getNode(neighbor.x - 1, neighbor.y), neighbor, goals) != null) {
                 return neighbor;
             }
         } else {
             return null;
         }
 
-        return jump(graph.getNode(neighbor.x + dx, neighbor.y + dy), neighbor, goal);
+        return jump(graph.getNode(neighbor.x + dx, neighbor.y + dy), neighbor, goals);
     }
 }

@@ -1,9 +1,6 @@
 package org.ksdev.jps;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Kevin
@@ -18,8 +15,8 @@ public class JPSDiagNoObstacles<T extends Node> extends JPS<T> {
      * If no parent for the given node, return all neighbors.
      */
     @Override
-    protected Collection<T> findNeighbors(T node, Map<T, T> parentMap) {
-        List<T> neighbors = new ArrayList<>();
+    protected Set<T> findNeighbors(T node, Map<T, T> parentMap) {
+        Set<T> neighbors = new HashSet<>();
 
         Node parent = parentMap.get(node);
         if (parent != null) {
@@ -84,9 +81,9 @@ public class JPSDiagNoObstacles<T extends Node> extends JPS<T> {
     }
 
     @Override
-    protected T jump(T neighbor, T current, T goal) {
+    protected T jump(T neighbor, T current, Set<T> goals) {
         if (neighbor == null || !neighbor.walkable) return null;
-        if (neighbor.equals(goal)) return neighbor;
+        if (goals.contains(neighbor)) return neighbor;
 
         int dx = neighbor.x - current.x;
         int dy = neighbor.y - current.y;
@@ -95,8 +92,8 @@ public class JPSDiagNoObstacles<T extends Node> extends JPS<T> {
         // check along diagonal
         if ((dx & dy) != 0) {
             // when moving diagonally, must check for vertical/horizontal jump points
-            if (jump(graph.getNode(neighbor.x + dx, neighbor.y), neighbor, goal) != null ||
-                    jump(graph.getNode(neighbor.x, neighbor.y + dy), neighbor, goal) != null) {
+            if (jump(graph.getNode(neighbor.x + dx, neighbor.y), neighbor, goals) != null ||
+                    jump(graph.getNode(neighbor.x, neighbor.y + dy), neighbor, goals) != null) {
                 return neighbor;
             }
         } else { // check along horizontal/vertical
@@ -115,7 +112,7 @@ public class JPSDiagNoObstacles<T extends Node> extends JPS<T> {
 
         // moving diagonally must make sure both of the vertical/horizontal neighbors is open to allow the path
         if (graph.isWalkable(neighbor.x + dx, neighbor.y) && graph.isWalkable(neighbor.x, neighbor.y + dy)) {
-            return jump(graph.getNode(neighbor.x + dx, neighbor.y + dy), neighbor, goal);
+            return jump(graph.getNode(neighbor.x + dx, neighbor.y + dy), neighbor, goals);
         } else {
             return null;
         }

@@ -112,10 +112,10 @@ public class Graph<T extends Node> {
     /**
      * @return All reachable neighboring nodes of the given node.
      */
-    public Collection<T> getNeighborsOf(T node, Diagonal diagonal) {
+    public Set<T> getNeighborsOf(T node, Diagonal diagonal) {
         int x = node.x;
         int y = node.y;
-        List<T> neighbors = new ArrayList<>();
+        Set<T> neighbors = new HashSet<>();
 
         boolean n = false, s = false, e = false, w = false, ne = false, nw = false, se = false, sw = false;
 

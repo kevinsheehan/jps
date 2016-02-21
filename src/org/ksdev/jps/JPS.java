@@ -15,20 +15,46 @@ public abstract class JPS<T extends Node> {
     }
 
     public Future<Queue<T>> findPath(T start, T goal) {
-        FutureTask<Queue<T>> future = new FutureTask<>(() -> findPathSync(start, goal));
+        return findPath(start, goal, false, false);
+    }
+
+    public Future<Queue<T>> findPath(T start, T goal, boolean adjacentStop) {
+        return findPath(start, goal, adjacentStop, true);
+    }
+
+    public Future<Queue<T>> findPath(T start, T goal, boolean adjacentStop, boolean diagonalStop) {
+        FutureTask<Queue<T>> future = new FutureTask<>(() -> findPathSync(start, goal, adjacentStop, diagonalStop));
         future.run();
         return future;
     }
 
     public Queue<T> findPathSync(T start, T goal) {
+        return findPathSync(start, goal, false, false);
+    }
+
+    public Queue<T> findPathSync(T start, T goal, boolean adjacentStop) {
+        return findPathSync(start, goal, adjacentStop, true);
+    }
+
+    public Queue<T> findPathSync(T start, T goal, boolean adjacentStop, boolean diagonalStop) {
         Queue<T> open = new PriorityQueue<>((a, b) -> {
             // we want the nodes with the lowest projected F value to be checked first
             return Double.compare(a.f, b.f);
         });
         Set<T> closed = new HashSet<>();
         Map<T, T> parentMap = new HashMap<>();
+        Set<T> goals = new HashSet<>();
 
-        if (!goal.isWalkable()) {
+        if (adjacentStop) {
+            if (!diagonalStop)
+                goals = graph.getNeighborsOf(goal, Graph.Diagonal.NEVER);
+            else
+                goals = findNeighbors(goal, parentMap);
+        }
+        if (goal.isWalkable()) {
+            goals.add(goal);
+        }
+        if (goals.isEmpty()) {
             return null;
         }
 
@@ -44,11 +70,11 @@ public abstract class JPS<T extends Node> {
             // mark the current node as checked
             closed.add(node);
 
-            if (node.equals(goal)) {
-                return backtrace(goal, parentMap);
+            if (goals.contains(node)) {
+                return backtrace(node, parentMap);
             }
             // add all possible next steps from the current node
-            identifySuccessors(node, goal, open, closed, parentMap);
+            identifySuccessors(node, goal, goals, open, closed, parentMap);
         }
 
         // failed to find a path
@@ -60,7 +86,7 @@ public abstract class JPS<T extends Node> {
      * nodes found to the open list.
      * @return All the nodes we have found jumpable from the current node
      */
-    private void identifySuccessors(T node, T goal, Queue<T> open, Set<T> closed, Map<T, T> parentMap) {
+    private void identifySuccessors(T node, T goal, Set<T> goals, Queue<T> open, Set<T> closed, Map<T, T> parentMap) {
         // get all neighbors to the current node
         Collection<T> neighbors = findNeighbors(node, parentMap);
 
@@ -68,7 +94,7 @@ public abstract class JPS<T extends Node> {
         double ng;
         for (T neighbor : neighbors) {
             // jump in the direction of our neighbor
-            T jumpNode = jump(neighbor, node, goal);
+            T jumpNode = jump(neighbor, node, goals);
 
             // don't add a node we have already gotten to quicker
             if (jumpNode == null || closed.contains(jumpNode)) continue;
@@ -96,12 +122,12 @@ public abstract class JPS<T extends Node> {
      * Find all neighbors for a given node. If node has a parent then prune neighbors based on JPS algorithm,
      * otherwise return all neighbors.
      */
-    protected abstract Collection<T> findNeighbors(T node, Map<T, T> parentMap);
+    protected abstract Set<T> findNeighbors(T node, Map<T, T> parentMap);
 
     /**
      * Search towards the child from the parent, returning when a jump point is found.
      */
-    protected abstract T jump(T neighbor, T current, T goal);
+    protected abstract T jump(T neighbor, T current, Set<T> goals);
 
     /**
      * Returns a path of the parent nodes from a given node.

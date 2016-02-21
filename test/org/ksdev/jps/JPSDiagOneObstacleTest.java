@@ -105,7 +105,16 @@ public class JPSDiagOneObstacleTest extends JPSDiagBaseTest {
             System.out.println("X: " + tile.x + ", Y: " + tile.y);
         }
 
-        System.out.println("Ugh.");
+        assert path.remove().equals(tileList2.get(38).get(34));
+        assert path.remove().equals(tileList2.get(37).get(33));
+        assert path.remove().equals(tileList2.get(36).get(33));
+        assert path.remove().equals(tileList2.get(35).get(33));
+        assert path.remove().equals(tileList2.get(34).get(33));
+        assert path.remove().equals(tileList2.get(33).get(32));
+        assert path.remove().equals(tileList2.get(34).get(31));
+        assert path.remove().equals(tileList2.get(35).get(30));
+        assert path.remove().equals(tileList2.get(36).get(30));
+        assert path.isEmpty();
 
         start = tileList2.get(36).get(30);
         System.out.println(start.isWalkable());
@@ -120,5 +129,32 @@ public class JPSDiagOneObstacleTest extends JPSDiagBaseTest {
         for (Tile tile : path) {
             System.out.println("X: " + tile.x + ", Y: " + tile.y);
         }
+    }
+
+    @Test
+    public void map2AdjacentStop() throws ExecutionException, InterruptedException {
+        Tile start = tileList2.get(38).get(34);
+        System.out.println(start.isWalkable());
+        Tile end = tileList2.get(36).get(30);
+        System.out.println(end.isWalkable());
+
+        Future<Queue<Tile>> futurePath = jps2.findPath(start, end, true);
+        Queue<Tile> path = futurePath.get();
+
+        assert path != null;
+
+        for (Tile tile : path) {
+            System.out.println("X: " + tile.x + ", Y: " + tile.y);
+        }
+
+        assert path.remove().equals(tileList2.get(38).get(34));
+        assert path.remove().equals(tileList2.get(37).get(33));
+        assert path.remove().equals(tileList2.get(36).get(33));
+        assert path.remove().equals(tileList2.get(35).get(33));
+        assert path.remove().equals(tileList2.get(34).get(33));
+        assert path.remove().equals(tileList2.get(33).get(32));
+        assert path.remove().equals(tileList2.get(34).get(31));
+        assert path.remove().equals(tileList2.get(35).get(30));
+        assert path.isEmpty();
     }
 }
